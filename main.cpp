@@ -12,6 +12,7 @@ namespace top
   {
     virtual p_t begin() const = 0;
     virtual p_t next(p_t) const = 0;
+    virtual ~IDraw() = default;
   };
 
   bool operator==(p_t a, p_t b)
@@ -30,7 +31,8 @@ namespace top
     p_t next(p_t) const override;
     p_t o;
     Dot(int x, int y);
-  }
+    ~Dot() override = default;
+  };
 
   struct frame_t
   {
@@ -53,7 +55,7 @@ namespace top
 
 int main()
 {
-  using namespece top;
+  using namespace top;
   IDraw * f[3] = {};
   size_t s = 0;
   char * cnv = nullptr;
