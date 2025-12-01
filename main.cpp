@@ -80,7 +80,7 @@ int main()
   delete f[2];
   delete[] p;
   delete[] cnv;
-  retutn err;
+  return err;
 }
 
 top::Dot::Dot(int x, int y):
