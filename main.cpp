@@ -30,7 +30,7 @@ namespace top
     p_t begin() const override;
     p_t next(p_t) const override;
     p_t o;
-    Dot(int x, int y);
+    explicit Dot(int x, int y);
     ~Dot() override = default;
   };
 
@@ -185,3 +185,31 @@ top::p_t top::Square::next(p_t p) const
   }
   return start;
 }
+
+void top::extend(p_t ** pts, size_t s, p_t p)
+{
+  p_t * res = new p_t[s + 1];
+  for (size_t i = 0; i < s; ++i)
+  {
+    res[i] = (*pts)[i];
+  }
+  res[s] = p;
+  delete[] *pts;
+  *pts = res;
+}
+
+size_t get_points(IDraw * b, p_t ** ps, size_t & s)
+{
+  p_t p = d.begin();
+  extend(ps, s, p);
+  size_t delta = 1;
+  while (d.next(p) != d.begin())
+  {
+    p = d.next(p);
+    extend(ps, s + delta, p);
+    ++delta;
+  }
+  return delta;
+}
+
+
