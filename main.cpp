@@ -46,7 +46,7 @@ namespace top
 
   frame_t build_frame(const p_t * ps, size_t s);
 
-  char * build_canvas(frame_t f);
+  char * build_canvas(frame_t f, char fill);
 
   void paint_canvas(char * cnv, frame_t fr, const p_t * ps, size_t k, char f);
 
@@ -230,4 +230,24 @@ frame_t build_frame(const p_t * ps, size_t s)
   p_t aa{minx, miny};
   p_t bb{maxx, maxy};
   return {aa, bb};
+}
+
+size_t top::rows(frame_t f)
+{
+  return (f.bb.y - f.aa.y + 1);
+}
+
+size_t top::cols(frame_t f)
+{
+  return (f.bb.x - f.aa.x + 1);
+}
+
+char * build_canvas(frame_t f, char fill)
+{
+  char * cnv = new char[rows(f) * cols(f)];
+  for (size_t i = 0; i < rows(f) * cols(f); ++i)
+  {
+    cnv[i] = fill;
+  }
+  return cnv;
 }
