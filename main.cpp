@@ -11,7 +11,7 @@ namespace top
   struct IDraw
   {
     virtual p_t begin() const = 0;
-    virtual p_t next(p_t) const = 0;
+    virtual p_t next(p_t p) const = 0;
     virtual ~IDraw() = default;
   };
 
@@ -28,10 +28,10 @@ namespace top
   struct Dot: IDraw
   {
     virtual p_t begin() const override;
-    virtual p_t next(p_t) const override;
+    virtual p_t next(p_t p) const override;
     p_t o;
     explicit Dot(int x, int y);
-    virtual ~Dot() override = default;
+    ~Dot() override = default;
   };
 
   struct frame_t
@@ -42,7 +42,7 @@ namespace top
 
   void extend(p_t ** pts, size_t s, p_t p);
 
-  size_t get_points(IDraw * b, p_t ** ps, size_t & s);
+  void get_points(IDraw * b, p_t ** ps, size_t & s);
 
   size_t rows(frame_t f);
 
@@ -94,9 +94,12 @@ int main()
   int err = 0;
   try
   {
+    f[0] = new Dot(0, 0);
+    f[1] = new Dot(2, 3);
+    f[2] = new Dot(-5, -2);
     for (size_t i = 0; i < 3; ++i)
     {
-      get_points(f[i], & p, s);
+      get_points(f[i], &p, s);
     }
     frame_t fr = build_frame(p, s);
     cnv = build_canvas(fr, '.');
@@ -105,6 +108,7 @@ int main()
   }
   catch (...)
   {
+    std::cerr << "Error\n";
     err = 1;
   }
   delete f[0];
@@ -201,7 +205,7 @@ void top::extend(p_t ** pts, size_t s, p_t p)
   *pts = res;
 }
 
-size_t top::get_points(IDraw * d, p_t ** ps, size_t & s)
+void top::get_points(IDraw * d, p_t ** ps, size_t & s)
 {
   p_t p = d->begin();
   extend(ps, s, p);
@@ -212,7 +216,7 @@ size_t top::get_points(IDraw * d, p_t ** ps, size_t & s)
     extend(ps, s + delta, p);
     ++delta;
   }
-  return delta;
+  s += delta;
 }
 
 top::frame_t top::build_frame(const p_t * ps, size_t s)
@@ -221,8 +225,8 @@ top::frame_t top::build_frame(const p_t * ps, size_t s)
   {
     throw std::logic_error("bad size");
   }
-  int minx = ps[0].x, maxx = minx;
-  int miny = ps[0].y, maxy = miny;
+  int minx = ps[0].x, maxx = ps[0].x;
+  int miny = ps[0].y, maxy = ps[0].y;
   for (size_t i = 1; i < s; ++i)
   {
     minx = std::min(minx, ps[i].x);
