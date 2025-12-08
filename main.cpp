@@ -51,6 +51,33 @@ namespace top
   void paint_canvas(char * cnv, frame_t fr, const p_t * ps, size_t k, char f);
 
   void print_canvas(const char * cnv, frame_t fr);
+
+  struct VLine : IDraw
+  {
+    VLine(int x, int y, int len);
+    p_t begin() const override;
+    p_t next(p_t p) const override;
+    p_t start;
+    int length;
+  };
+
+  struct HLine : IDraw
+  {
+    HLine(int x, int y, int len);
+    p_t begin() const override;
+    p_t next(p_t p) const override;
+    p_t start;
+    int length;
+  };
+
+  struct Square : IDraw
+  {
+    Square(int x, int y, int len);
+    p_t begin() const override;
+    p_t next(p_t p) const override;
+    p_t start;
+    int length;
+  };
 }
 
 int main()
@@ -97,4 +124,64 @@ top::p_t top::Dot::begin() const
 top::p_t top::Dot::next(p_t) const
 {
   return begin();
+}
+
+top::VLine::VLine(int x, int y, int len) : IDraw(), start{x,y}, length(len)
+{}
+
+top::p_t top::VLine::begin() const
+{
+  return start;
+}
+
+top::p_t top::VLine::next(p_t p) const
+{
+  if (p.y == start.y + length)
+  {
+    return start;
+  }
+  return p_t{start.x, p.y + 1};
+}
+
+top::HLine::HLine(int x, int y, int len) : IDraw(), start{x, y}, length(len)
+{}
+
+top::p_t top::HLine::begin() const
+{
+  return start;
+}
+
+top::p_t top::HLine::next(p_t p) const
+{
+  if (p.x == start.x + length)
+  {
+    return start;
+  }
+  return p_t{p.x + 1, start.y };
+}
+
+top::Square::Square(int x, int y, int len) : IDraw(), start{x, y}, length(len)
+{}
+
+top::p_t top::Square::begin() const
+{
+  return start;
+}
+
+top::p_t top::Square::next(p_t p) const
+{
+  if (p.y == start.y && p.x < start.x + length)
+  {
+    return p_t{p.x + 1, p.y};
+  } else if (p.x == start.x + length && p.y < start.y + length)
+  {
+    return p_t{p.x, p.y + 1};
+  } else if (p.y == start.y + length && p.x > start.x)
+  {
+    return p_t{p.x - 1, p.y};
+  } else if (p.x == start.x && p.y > start.y)
+  {
+    return p_t{p.x, p.y - 1};
+  }
+  return start;
 }
