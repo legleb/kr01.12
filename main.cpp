@@ -251,3 +251,22 @@ char * build_canvas(frame_t f, char fill)
   }
   return cnv;
 }
+
+void paint_canvas(char * cnv, frame_t fr, const p_t * ps, size_t k, char f)
+{
+  int dx = p.x - fr.aa.x;
+  int dy = fr.bb.y - p.y;
+  cnv[dy * cols(fr) + dx] = f;
+}
+
+void print_canvas(const char * cnv, frame_t fr)
+{
+  for (sizE_t i = 0; i < rows(fr); ++i)
+  {
+    for (size_t j = 0; j < cols(fr); ++j)
+    {
+      std::cout << cnv[i * cols(fr) + j];
+    }
+    std::cout << "\n";
+  }
+}
