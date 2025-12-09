@@ -56,7 +56,7 @@ namespace top
 
   void print_canvas(const char * cnv, frame_t fr);
 
-  struct VLine : IDraw
+  struct VLine: IDraw
   {
     VLine(int x, int y, int len);
     p_t begin() const override;
@@ -65,7 +65,7 @@ namespace top
     int length;
   };
 
-  struct HLine : IDraw
+  struct HLine: IDraw
   {
     HLine(int x, int y, int len);
     p_t begin() const override;
@@ -74,7 +74,16 @@ namespace top
     int length;
   };
 
-  struct Square : IDraw
+  struct DiagLine: IDraw
+  { 
+    DiagLine(int x, int y, int len);
+    p_t begin() const override;
+    p_t next(p_t p) const override;
+    p_t start;
+    int length;
+  };
+
+  struct Square: IDraw
   {
     Square(int x, int y, int len);
     p_t begin() const override;
@@ -82,12 +91,21 @@ namespace top
     p_t start;
     int length;
   };
+
+  struct Rectangle: IDraw
+  {
+    Rectangle(int x, int y, int height, int width);
+    p_t begin() const override;
+    p_t next(p_t p) const override;
+    p_t start;
+    int hei, wid;
+  };
 }
 
 int main()
 {
   using namespace top;
-  IDraw * f[3] = {};
+  IDraw * f[8] = {};
   size_t s = 0;
   char * cnv = nullptr;
   p_t * p = nullptr;
@@ -97,7 +115,12 @@ int main()
     f[0] = new Dot(0, 0);
     f[1] = new Dot(2, 3);
     f[2] = new Dot(-5, -2);
-    for (size_t i = 0; i < 3; ++i)
+    f[3] = new VLine(1, 1, 8);
+    f[4] = new HLine(-4, 6, 7);
+    f[5] = new DiagLine(-8, 2, 5);
+    f[6] = new Square(3, -3, 5);
+    f[7] = new Rectangle(3, -12, 5, 10);
+    for (size_t i = 0; i < 8; ++i)
     {
       get_points(f[i], &p, s);
     }
@@ -114,6 +137,10 @@ int main()
   delete f[0];
   delete f[1];
   delete f[2];
+  delete f[3];
+  delete f[4];
+  delete f[5];
+  delete f[6];
   delete[] p;
   delete[] cnv;
   return err;
@@ -131,66 +158,6 @@ top::p_t top::Dot::begin() const
 top::p_t top::Dot::next(p_t) const
 {
   return begin();
-}
-
-top::VLine::VLine(int x, int y, int len) : IDraw(), start{x,y}, length(len)
-{}
-
-top::p_t top::VLine::begin() const
-{
-  return start;
-}
-
-top::p_t top::VLine::next(p_t p) const
-{
-  if (p.y == start.y + length)
-  {
-    return start;
-  }
-  return p_t{start.x, p.y + 1};
-}
-
-top::HLine::HLine(int x, int y, int len) : IDraw(), start{x, y}, length(len)
-{}
-
-top::p_t top::HLine::begin() const
-{
-  return start;
-}
-
-top::p_t top::HLine::next(p_t p) const
-{
-  if (p.x == start.x + length)
-  {
-    return start;
-  }
-  return p_t{p.x + 1, start.y };
-}
-
-top::Square::Square(int x, int y, int len) : IDraw(), start{x, y}, length(len)
-{}
-
-top::p_t top::Square::begin() const
-{
-  return start;
-}
-
-top::p_t top::Square::next(p_t p) const
-{
-  if (p.y == start.y && p.x < start.x + length)
-  {
-    return p_t{p.x + 1, p.y};
-  } else if (p.x == start.x + length && p.y < start.y + length)
-  {
-    return p_t{p.x, p.y + 1};
-  } else if (p.y == start.y + length && p.x > start.x)
-  {
-    return p_t{p.x - 1, p.y};
-  } else if (p.x == start.x && p.y > start.y)
-  {
-    return p_t{p.x, p.y - 1};
-  }
-  return start;
 }
 
 void top::extend(p_t ** pts, size_t s, p_t p)
@@ -279,4 +246,118 @@ void top::print_canvas(const char * cnv, frame_t fr)
     }
     std::cout << "\n";
   }
+}
+
+top::VLine::VLine(int x, int y, int len):
+IDraw(), start{x,y}, length(len)
+{}
+
+top::p_t top::VLine::begin() const
+{
+  return start;
+}
+
+top::p_t top::VLine::next(p_t p) const
+{
+  if (p.y == start.y + length)
+  {
+    return start;
+  }
+  return p_t{start.x, p.y + 1};
+}
+
+top::HLine::HLine(int x, int y, int len):
+IDraw(), start{x, y}, length(len)
+{}
+
+top::p_t top::HLine::begin() const
+{
+  return start;
+}
+
+top::p_t top::HLine::next(p_t p) const
+{
+  if (p.x == start.x + length)
+  {
+    return start;
+  }
+  return p_t{p.x + 1, start.y};
+}
+
+top::DiagLine::DiagLine(int x, int y, int len):
+IDraw(), start{x, y}, length(len)
+{}
+
+top::p_t top::DiagLine::begin() const
+{
+  return start;
+}
+
+top::p_t top::DiagLine::next(p_t p) const
+{
+  if (p.x == start.x + length && p.y == start.y + length)
+  {
+    return start;
+  }
+  return p_t{p.x + 1, p.y + 1};
+}
+
+top::Square::Square(int x, int y, int len):
+IDraw(), start{x, y}, length(len)
+{}
+
+top::p_t top::Square::begin() const
+{
+  return start;
+}
+
+top::p_t top::Square::next(p_t p) const
+{
+  if (p.y == start.y && p.x < start.x + length)
+  {
+    return p_t{p.x + 1, p.y};
+  }
+  else if (p.x == start.x + length && p.y < start.y + length)
+  {
+    return p_t{p.x, p.y + 1};
+  }
+  else if (p.y == start.y + length && p.x > start.x)
+  {
+    return p_t{p.x - 1, p.y};
+  }
+  else if (p.x == start.x && p.y > start.y)
+  {
+    return p_t{p.x, p.y - 1};
+  }
+  return start;
+}
+
+top::Rectangle::Rectangle(int x, int y, int height, int width):
+IDraw(), start{x, y}, hei(height), wid(width)
+{}
+
+top::p_t top::Rectangle::begin() const
+{
+  return start;
+}
+
+top::p_t top::Rectangle::next(p_t p) const
+{
+  if (p.y == start.y && p.x < start.x + wid)
+  {
+    return p_t{p.x + 1, p.y};
+  }
+  else if (p.x == start.x + wid && p.y < start.y + hei)
+  {
+    return p_t{p.x, p.y + 1};
+  }
+  else if (p.y == start.y + hei && p.x > start.x)
+  {
+    return p_t{p.x - 1, p.y};
+  }
+  else if (p.x == start.x && p.y > start.y)
+  {
+    return p_t{p.x, p.y - 1};
+  }
+  return start;
 }
